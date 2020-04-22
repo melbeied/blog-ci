@@ -1,0 +1,23 @@
+---
+- name : Installation Pelican
+  hosts: all
+  user: vagrant
+  gather_facts: No
+  become: yes 
+  vars:
+    - username: vagrant
+    - home_dir: "/home/{{ username }}"
+  tasks:
+    - name: Install aptitude using apt
+      apt: name=aptitude state=present update_cache=yes force_apt_get=yes
+    
+    - name: Install required for pelican system packages
+      apt: name={{ item }} state=present update_cache=yes
+      loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python-virtualenv', 'python-dev', 'python-pip']  
+      
+    - name: pelican
+      pip: name={{ item }} state=latest 
+      loop: [ 'virtualenvwrapper', 'pelican', 'markdown', 'typogrify' ]
+      
+    - name : ajout de commande de parametrage profil - virtualEnv
+      shell: echo "export WORKON_HOME=~/.virtualenvs\n. /usr/local/bin/virtualenvwrapper.sh" >> {{ home_dir }}/.bashrc 

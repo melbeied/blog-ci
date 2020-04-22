@@ -1,0 +1,7 @@
+---
+ip_address: 192.168.0.50
+box_name : laravel/homestead
+vm_name: inst1-P4
+server_domain: projet4.dev
+host_name: safi
+user: vagrant

@@ -1,0 +1,39 @@
+pages:
+  stage: build
+  script:
+  #- apk update && apk add make
+  - pip install -r requirements.txt
+  - make html
+  - make publish
+  artifacts:
+    paths:
+      - public/
+  only:
+    - master
+
+test:
+  stage: test
+  script:
+    - apk update && apk add make
+    - pip install -r requirements.txt
+    - make publish
+  only:
+    - branches
+  except:
+    - master    
+
+deploy:
+  stage: deploy
+  script:
+    - git clone --depth 1 https://${GITHUB_USER_NAME}:${GITHUB_ACCESS_TOKEN}@github.com/${GITHUB_USER_NAME}/${GITHUB_USER_NAME}.github.io.git
+    - mkdir ${GITHUB_USER_NAME}.github.io.tmp
+    - cp -a ${GITHUB_USER_NAME}.github.io/.git ${GITHUB_USER_NAME}.github.io.tmp/.git
+    - cp -a public/* ${GITHUB_USER_NAME}.github.io.tmp
+    - cd ${GITHUB_USER_NAME}.github.io.tmp
+    - git config user.email "${GITHUB_USER_EMAIL}"
+    - git config --global user.name "${GITHUB_USER_NAME}"
+    - git add -A
+    - git diff-index --quiet HEAD || git commit -m "$CI_SERVER_NAME $CI_PIPELINE_ID"
+    - git push
+  only:
+    - master
